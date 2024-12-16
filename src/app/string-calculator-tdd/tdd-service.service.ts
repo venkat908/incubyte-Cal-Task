@@ -1,6 +1,6 @@
 "use strict";
 import { Injectable } from '@angular/core';
-import { NumberInput } from './numberInput.model'; // Assuming NumberInput is imported here
+import { NumberInput } from "./numberInput.model";
 
 @Injectable({
   providedIn: 'root'
@@ -12,25 +12,18 @@ export class TddServiceService {
     let delimiter = components.delimiter;
     numbers = components.numbers;
 
-    if (!numbers) return 0;
-
-    // Split the string by the delimiter (newlines and commas), ensuring multiple delimiters are handled
+    if (!numbers) return 0; 
     let values = numbers.split(delimiter);
-
     let sum = 0;
     let invalidValues: number[] = [];
 
     // Process each value
     for (let value of values) {
-      let numberValue = parseInt(value, 10);  // Explicit base 10 parsing
-      if (isNaN(numberValue)) {
-        continue;  // Skip if the value is not a valid number
-      }
-
+      let numberValue = parseInt(value);
       if (numberValue < 0) {
         invalidValues.push(numberValue);
       } else {
-        sum += numberValue > 1000 ? 0 : numberValue; // Ignore numbers > 1000
+        sum += numberValue > 1000 ? 0 : numberValue; 
       }
     }
 
@@ -39,19 +32,19 @@ export class TddServiceService {
       throw new Error('No negative values are allowed: ' + invalidValues.join(', '));
     }
 
-    return sum || 0;  // If sum is 0, ensure the result is 0
+    return sum || 0;
   }
 
   // Get components: delimiter and numbers
   getComponents(input: string | any): NumberInput {
     let num = input;
-    let delimiter = /[\n,]+/; // Default delimiters: newline and comma, one or more times
+    let delimiter = /,|\n/; // Default delimiters (comma and newline)
     let numbers = num;
 
     if (num.startsWith('//')) {
       // Custom delimiter: e.g., "//;\n1;2"
-      delimiter = new RegExp(this.escapeRegExp(num.split('\n')[0].substr(2))); // Capture custom delimiter
-      numbers = num.split('\n').slice(1).join('\n'); // Remove the delimiter definition
+      delimiter = new RegExp(this.escapeRegExp(num.split('\n').shift()?.substr(2) || ','));
+      numbers = num.replace(/^\/\/.+\n/, '');
     }
 
     return new NumberInput(delimiter, numbers);
